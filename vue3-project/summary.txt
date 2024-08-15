@@ -1,0 +1,39 @@
+- vue 설치방법 (vue.CLI)
+
+1. 터미널에서 node.js 버전 확인 (설치여부 확인)
+    node -v
+
+2. npm 버전 확인
+    npm -v
+
+3. vue.CLI install
+    npm install -g @vue/cli
+
+4. vue.CLI 설치확인
+    vue -V
+
+5. 프로젝트 생성을 위한 경로로 이등
+    cd D:\Study\Vue
+
+6. 프로젝트 생성
+    vue create vue3-project
+    - vue3 선택
+    - 생성 중엔 다른 거 열지 말자...첨부터 다시 맹그럿슴
+
+7. 익스텐션 설치
+    - vetur (pine Wu 제작)
+    - vetur 웹사이트에서 project 셋업하는 방법 따라 작업해주기
+        > https://vuejs.github.io/vetur/guide/setup.html#vs-code-config
+        > jsconfig.json에 내용 추가
+            {
+                "include": [
+                "./src/**/*"
+                ]
+            }
+
+8. npm run serve
+	
+----------------------------------------------------------------------------
+
+- 부트스트랩
+https://www.bootstrapcdn.com/
