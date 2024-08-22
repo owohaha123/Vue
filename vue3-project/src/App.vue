@@ -1,45 +1,72 @@
 <!-- html -->
 <template>
-  <p>단방향 바인딩</p>
-  <div v-bind:class="nameClass">
-    <!-- ref 사용 시 name.value 이런 식이 아닌 걍 name 으로 사용해준다-->
-    {{ name }}
-  </div>
-  <!-- ref 사용 시 데이터 바인딩/ [v-bind:] 는 [:]로 생략가능-->
-  <input v-bind:type="type" :value="name"/>
-  <!-- [v-on:] 는 [@]로 생략가능 -->
-  <button class="btn btn-primary" @click="updateName">Click</button>
+  <div class="summary" style="display: none;">  
+    <div>
+      <p>단방향 바인딩</p>
+      <div v-bind:class="nameClass">
+        <!-- ref 사용 시 name.value 이런 식이 아닌 걍 name 으로 사용해준다-->
+        {{ name }}
+      </div>
+      <!-- ref 사용 시 데이터 바인딩/ [v-bind:] 는 [:]로 생략가능-->
+      <input v-bind:type="type" :value="name"/>
+      <!-- [v-on:] 는 [@]로 생략가능 -->
+      <button class="btn btn-primary" @click="updateName">Click</button>
 
-  <p>양방향 바인딩</p>
-  <input type="text" :value="name" @input="updateInput"/>
-  <button class="btn btn-primary" @click="onSubmit">Click</button>
+      <p>양방향 바인딩</p>
+      <input type="text" :value="name" @input="updateInput"/>
+      <button class="btn btn-primary" @click="onSubmit">Click</button>
 
-  <!-- 양방향바인딩 이해를 위한 앞선 설명들은 v-model 이면 뚝딱 대체됨  -->
-  <input type="text" v-model="name" />
+      <!-- 양방향바인딩 이해를 위한 앞선 설명들은 v-model 이면 뚝딱 대체됨  -->
+      <input type="text" v-model="name" />
+    </div>
 
+    <div>
+      <div v-show="toggle">true</div>
+      <div v-show="!toggle">false</div>
+      <button @click="onToggle">Toggle</button>
+
+      <!-- v-show 는 초기 렌더비용이 좀 더 든다 -->
+      <div v-if="toggle">true</div>
+      <div v-else>false</div>
+      <button @click="onToggle">Toggle</button>
+    </div>
+  </div> 
   
   <div class="container">
-    <p>To-Do List</p>
-    <form class="d-flex" @submit.prevent="onSubmit">
-      <div class="flex-glow-1">
-        <input class="form-control mr-2" type="text" v-model="todo" placeholder="new to-do"/>
+    <h3>To-Do List</h3>
+    <form @submit.prevent="onSubmit">
+      <div class="d-flex">
+        <div class="flex-glow-1">
+          <input class="form-control mr-2" type="text" v-model="todo" placeholder="new to-do"/>
+        </div>
+        <div>
+          <button class="btn btn-primary" type="submit">add</button>
+        </div>      
       </div>
-      <div>
-        <button class="btn btn-primary" type="submit">add</button>
-      </div>
+      <!-- v-show 사용해도 좋음 -->
+      <div v-if="hasError" style="color: red;">this field connot empty</div>
     </form>
-  
-    <div class="card">
-      <div class="card-body p-2">
-        {{ todos[0].subject }}
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body p-2">
-        {{ todos[1].subject }}
+    
+    <div v-if="!todos.length">empty todo</div>
+    <!-- v-for : array 데이터 반복 노출 -->
+    <div class="card mt-2" v-for="(todo, index) in todos" :key="todo.id">
+      <div class="card-body p-2 d-flex aline-items-center">
+        <div class="form-check flex-grow-1">
+          <input class="form-check-input" type="checkbox" v-model="todo.completed">
+          <!-- <label class="form-check-label" :style="todo.completed ? todoStyle : {}"> -->
+          <label class="form-check-label" :class="{ todo: todo.completed}">
+            {{ todo.subject }}
+          </label>
+        </div>
+        <div>
+          <button class="btn btn-danger btn-sm" @click="delTodo(index)">
+            delete
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -54,10 +81,14 @@ export default {
     const type = ref('number');
     const nameClass = ref('');
     const todo = ref('');
-    const todos = ref([
-      {id:1 , subject:'공부'},
-      {id:2 , subject:'복습'}
-    ]);
+    const todos = ref([]);
+    const toggle = ref(false);
+    const hasError = ref(false);
+    const todoStyle = {
+      textDecoration: 'line-through',
+      color: 'gray',
+    }
+
     // const name = reactive({
     //   id: 1
     // });
@@ -77,15 +108,30 @@ export default {
     };
     
     const onSubmit = () => {
-      todos.value.push({
-        id: Date.now(),
-        subject: todo.value,
-      })
+      if(todo.value === ''){
+        hasError.value = true;
+      }else{
+        todos.value.push({
+          id: Date.now(),
+          subject: todo.value,
+          completed: false,
+        });
+        hasError.value = false;
+        todo.value = '';
+      }
     };
 
     const updateInput = (e) => {
       name.value = e.target.value;
     };
+
+    const onToggle = () => {
+      toggle.value = !toggle.value;
+    }
+
+    const delTodo = (index) => {
+      todos.value.splice(index, 1);
+    }
 
     return {
       //greet,
@@ -100,13 +146,24 @@ export default {
 
       todo,
       todos,
+
+      toggle,
+      onToggle,
+      hasError,
+
+      todoStyle,
+      delTodo
     };
   },
 };
 </script>
 
 <style>
-.name {
-  color: blue;
-}
+  .name {
+    color: blue;
+  }
+  .todo {
+    color: gray;
+    text-decoration: line-through;
+  }
 </style>
