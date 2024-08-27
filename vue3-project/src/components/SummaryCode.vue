@@ -1,5 +1,8 @@
+<style>
+  .summary{display: none;}
+</style>
 <template>
-    <div class="summary" style="display: none;">  
+    <div class="summary">  
     <div>
       <p>단방향 바인딩</p>
       <div v-bind:class="nameClass">
@@ -29,11 +32,20 @@
       <div v-else>false</div>
       <button @click="onToggle">Toggle</button>
     </div>
+
+    <!-- computed -->
+    <h4>count : {{ count }}</h4>
+    <h4>double count computed : {{ doubleCountComputed }}</h4>
+    <h4>double count computed : {{ doubleCountComputed }}</h4>
+    <h4>double count method : {{ doubleCountMethod() }}</h4>
+    <h4>double count method : {{ doubleCountMethod() }}</h4>
+    <button @click="count++">add one</button>
   </div> 
 </template>
 
 <script>
-  import {ref} from 'vue';
+  import {ref,computed} from 'vue';
+
   export default {
     setup() {
       //let name = "goguma"; //값이 변해야 하니 let로 선언
@@ -69,7 +81,20 @@
       const onToggle = () => {
         toggle.value = !toggle.value;
       };
-    
+      
+      //computed 와 함수의 차이
+      //1.인자를 받아올 수 없음 (=(name)=>)
+      //2.computed 는 값을 cash하여 저장함
+      const count = ref(1);
+      const doubleCountComputed = computed(()=>{
+        console.log('computed');//두 번 호출했으나 한 개의 log 만 찍힘
+        return count.value * 2;
+      })
+
+      const doubleCountMethod = ()=> {
+        console.log('method');
+        return count.value * 2;
+      };
     return{
       //greet,
       name,
@@ -80,6 +105,10 @@
       updateInput,
       toggle,
       onToggle,
+
+      count,
+      doubleCountComputed,
+      doubleCountMethod
     }
   }
 }

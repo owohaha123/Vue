@@ -1,4 +1,4 @@
-- vue 설치방법 (vue.CLI)
+▶ vue 설치방법 (vue.CLI)
 
 1. 터미널에서 node.js 버전 확인 (설치여부 확인)
     node -v
@@ -37,3 +37,27 @@
 
 - 부트스트랩
 https://www.bootstrapcdn.com/
+
+
+----------------------------------------------------------------------------
+▶ 개발용 임시 db
+- https://www.npmjs.com/package/json-server
+
+1. npm install -g json-server
+2. db.json 생성
+3. json-server --watch db.json
+  - 실행 시 node.js 버전 문제가 있어 업그레이드 진행 (16 -> 18)
+  - https://github.com/coreybutler/nvm-windows/releases
+    > 여기서 최신 버전의 설치파일 다운로드 (nvm-setup.zip)
+    > 압축 해제 후 설치 파일 실행
+    > cmd
+        nvm install 18.0.0
+        nvm use 18.0.0
+  - 위 방법도 잘 안 되었다...이전 버전 설치 후 실행하자 걍
+    > npm install -g json-server@0.16.3
+4. http://localhost:3000/todos    
+
+5. axios 설치
+    npm i axios
+
+ 
