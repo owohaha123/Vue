@@ -14,6 +14,26 @@
     <div v-if="!filteredTodos.length">There is nothing to display</div>
 
     <TodoList :todos="filteredTodos" @toggle-todo="toggleTodo" @del-todo="delTodo"/>
+
+    <hr/>
+
+    <!-- pagination -->
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li v-if="currentPage !== 1" class="page-item">
+          <a class="page-link" @click="getTodos(currentPage - 1)" href="#">
+            Previous
+          </a>
+        </li>
+        <li v-for="page in numberOfPages" :key="page" :class="currentPage === page ? active : ''"  class="page-item">
+          <a class="page-link" @click="getTodos(page)" href="#">{{page}}</a>
+        </li>
+        <li v-if="numberOfPages !== currentPage" class="page-item">
+          <a class="page-link" @click="getTodos(currentPage + 1)" href="#">Next</a>
+        </li>
+      </ul>
+    </nav>
+    {{ numberOfPages }}
   </div>
 
 </template>
@@ -23,7 +43,7 @@ import {ref,computed} from 'vue';
 import SummaryCode from './components/SummaryCode.vue';
 import TodoSimpleForm from './components/TodoSimpleForm.vue';
 import TodoList from './components/TodoList.vue';
-import axios from 'axios';
+import axios from 'axios'; //비동기방식(비순차)
 //import { reactive } from 'vue';
 
 
@@ -42,28 +62,73 @@ export default {
       textDecoration: 'line-through',
       color: 'gray',
     }
-    
-    const addTodo = (todo) => {
-      //db에 todo 저장 
-      error.value = '';
-      axios.post('http://localhost:3000/todos', {
-        subject: todo.subject,
-        completed : todo.completed,
-      }).then(res => { //응답 후
-        console.log(res);
-        todos.value.push(res.data);
-      }).catch(err => {
-        console.log(err);
-        error.value = 'ERROR';
-      });
-    };
+    const numberOfTodos = ref(0);
+    const limit = 5;
+    const currentPage = ref(1);
+    const numberOfPages = computed(()=>{
+      return Math.ceil(numberOfTodos.value/limit);
+    });
 
-    const delTodo = (index) => {
-      todos.value.splice(index, 1);
+    const getTodos = async(page = currentPage.value) => {
+      currentPage.value = page;
+      try{
+        const res = await axios.get(`http://localhost:3000/todos?_page=${page}&_limit=${limit}`);
+        numberOfTodos.value = res.headers['x-total-count'];
+        todos.value = res.data;
+      }catch(err){
+        error.value = 'ERROR';
+      }
     }
     
-    const toggleTodo = (index) => {
-      todos.value[index].completed = !todos.value[index].completed;
+    getTodos();
+
+    // 콜백 지옥 방지를 위해 async/await 사용
+    // async : 함수 자체를 비동기화
+    // async로 function 선언, 기다려야하는 작업에 await --> 순차적 진행 굿
+    const addTodo = async(todo) => {
+      //db에 todo 저장 
+      error.value = '';
+      try{
+        const res = await axios.post('http://localhost:3000/todos', {
+          subject: todo.subject,
+          completed : todo.completed,
+        });
+        todos.value.push(res.data);
+      }catch(err){
+        error.value = 'ERROR';
+      }
+
+      // .then(res => { //응답 후
+      //   console.log(res);
+      //   todos.value.push(res.data);
+      // }).catch(err => {
+      //   console.log(err);
+      //   error.value = 'ERROR';
+      // });
+    };
+
+    const delTodo = async(index) => {
+      error.value = '';
+      const id = todos.value[index].id;
+      try{
+        await axios.delete('http://localhost:3000/todos/' + id);
+        todos.value.splice(index, 1);
+      }catch(err){
+        error.value = 'ERROR';
+      }
+    }
+    
+    const toggleTodo = async(index) => {
+      const id = todos.value[index].id;
+      try{
+        //patch: 일부수정 / put: 전체수정
+        await axios.patch('http://localhost:3000/todos/' + id, {
+          completed: !todos.value[index].completed
+        });
+        todos.value[index].completed = !todos.value[index].completed;
+      }catch(err){
+        error.value = 'ERROR';
+      }
     };
 
     const searchText = ref('');
@@ -92,6 +157,11 @@ export default {
       searchText,
       filteredTodos,
       error,
+
+      numberOfPages,
+      currentPage,
+
+      getTodos,
     };
   },
 };

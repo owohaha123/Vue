@@ -5,7 +5,7 @@
       <div class="card-body p-2 d-flex aline-items-center">
         <div class="form-check flex-grow-1">
             <!-- one-way binding 이슈로 value 로 변경 -->
-            <input class="form-check-input" type="checkbox" :value="todo.completed" @change="toggleTodo(index)">
+            <input class="form-check-input" type="checkbox" :checked="todo.completed" @change="toggleTodo(index)">
             <!-- <input class="form-check-input" type="checkbox" v-model="todo.completed"> -->
             <!-- <label class="form-check-label" :style="todo.completed ? todoStyle : {}"> -->
             <label class="form-check-label" :class="{ todo: todo.completed}">
