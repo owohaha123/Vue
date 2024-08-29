@@ -5,15 +5,15 @@
   <div class="container">
     <h3>To-Do List</h3>
     
-    <input class="form-control mr-2" type="text" v-model="searchText" placeholder="Search"/>
+    <input class="form-control mr-2" type="text" v-model="searchText" @keyup.enter="searchTodo" placeholder="Search"/>
     <hr/>
     <!-- form component 생성 -->
     <TodoSimpleForm @add-todo="addTodo"/>
     <div>{{  error }}</div>
 
-    <div v-if="!filteredTodos.length">There is nothing to display</div>
+    <div v-if="!todos.length">There is nothing to display</div>
 
-    <TodoList :todos="filteredTodos" @toggle-todo="toggleTodo" @del-todo="delTodo"/>
+    <TodoList :todos="todos" @toggle-todo="toggleTodo" @del-todo="delTodo"/>
 
     <hr/>
 
@@ -33,19 +33,16 @@
         </li>
       </ul>
     </nav>
-    {{ numberOfPages }}
   </div>
 
 </template>
 
 <script>
-import {ref,computed} from 'vue';
+import {ref, computed, watch} from 'vue';
 import SummaryCode from './components/SummaryCode.vue';
 import TodoSimpleForm from './components/TodoSimpleForm.vue';
 import TodoList from './components/TodoList.vue';
 import axios from 'axios'; //비동기방식(비순차)
-//import { reactive } from 'vue';
-
 
 export default {
   components:{
@@ -58,12 +55,9 @@ export default {
     const todos = ref([]);
     const error = ref('');
     //const hasError = ref(false);
-    const todoStyle = {
-      textDecoration: 'line-through',
-      color: 'gray',
-    }
+    const searchText = ref('');
     const numberOfTodos = ref(0);
-    const limit = 5;
+    let limit = 5;
     const currentPage = ref(1);
     const numberOfPages = computed(()=>{
       return Math.ceil(numberOfTodos.value/limit);
@@ -72,7 +66,7 @@ export default {
     const getTodos = async(page = currentPage.value) => {
       currentPage.value = page;
       try{
-        const res = await axios.get(`http://localhost:3000/todos?_page=${page}&_limit=${limit}`);
+        const res = await axios.get(`http://localhost:3000/todos?_sort=id&_order=desc&subject_like=${searchText.value}&_page=${page}&_limit=${limit}`);
         numberOfTodos.value = res.headers['x-total-count'];
         todos.value = res.data;
       }catch(err){
@@ -89,11 +83,13 @@ export default {
       //db에 todo 저장 
       error.value = '';
       try{
-        const res = await axios.post('http://localhost:3000/todos', {
+        //const res = await axios.post('http://localhost:3000/todos', {
+        await axios.post('http://localhost:3000/todos', {
           subject: todo.subject,
           completed : todo.completed,
         });
-        todos.value.push(res.data);
+        getTodos(1);
+        //todos.value.push(res.data);
       }catch(err){
         error.value = 'ERROR';
       }
@@ -112,7 +108,8 @@ export default {
       const id = todos.value[index].id;
       try{
         await axios.delete('http://localhost:3000/todos/' + id);
-        todos.value.splice(index, 1);
+        getTodos(1);
+        //todos.value.splice(index, 1);
       }catch(err){
         error.value = 'ERROR';
       }
@@ -131,16 +128,32 @@ export default {
       }
     };
 
-    const searchText = ref('');
-    const filteredTodos = computed(()=>{
-      if(searchText.value){
-        return todos.value.filter(todo => {
-          return todo.subject.includes(searchText.value);
-        });
-      }
+    // const filteredTodos = computed(()=>{
+    //   if(searchText.value){
+    //     return todos.value.filter(todo => {
+    //       return todo.subject.includes(searchText.value);
+    //     });
+    //   }
 
-      return todos.value;
+    //   return todos.value;
+    // });
+
+    let timeout = null;
+    const searchTodo = () => {
+      clearTimeout(timeout);
+      getTodos(1); 
+    }
+    watch(searchText, () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        getTodos(1);  
+      },2000)//2s
     });
+
+    const todoStyle = {
+      textDecoration: 'line-through',
+      color: 'gray',
+    }
 
     return {
       addTodo,
@@ -155,13 +168,14 @@ export default {
       toggleTodo,
 
       searchText,
-      filteredTodos,
+      //filteredTodos,
       error,
 
       numberOfPages,
       currentPage,
 
       getTodos,
+      searchTodo,
     };
   },
 };

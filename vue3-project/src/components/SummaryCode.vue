@@ -45,6 +45,7 @@
 
 <script>
   import {ref,computed} from 'vue';
+  //import {watchEffect,reactive} from 'vue';
 
   export default {
     setup() {
@@ -62,6 +63,13 @@
       //   return "hello," + name;
       // };
       // const greet = greeting(name);
+
+      // const a = reactive({b:1});
+
+      // watchEffect(() => {
+      //   console.log(a.b)
+      // })
+      // a.b = 4;
 
       const updateName = () => {
         //name = "gamza";
@@ -87,12 +95,12 @@
       //2.computed 는 값을 cash하여 저장함
       const count = ref(1);
       const doubleCountComputed = computed(()=>{
-        console.log('computed');//두 번 호출했으나 한 개의 log 만 찍힘
+        //console.log('computed');//두 번 호출했으나 한 개의 log 만 찍힘
         return count.value * 2;
       })
 
       const doubleCountMethod = ()=> {
-        console.log('method');
+        //console.log('method');
         return count.value * 2;
       };
     return{
