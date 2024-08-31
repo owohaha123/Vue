@@ -40,6 +40,7 @@ https://www.bootstrapcdn.com/
 
 
 ----------------------------------------------------------------------------
+
 ▶ 개발용 임시 db
 - https://www.npmjs.com/package/json-server
 
@@ -59,5 +60,14 @@ https://www.bootstrapcdn.com/
 
 5. axios 설치
     npm i axios
+
+----------------------------------------------------------------------------
+
+▶ Vue Router 설치
+- https://router.vuejs.org/installation.html
+
+1. 4번째 버전 사용
+    npm install vue-router@4
+
 
  
