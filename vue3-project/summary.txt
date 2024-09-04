@@ -69,5 +69,31 @@ https://www.bootstrapcdn.com/
 1. 4번째 버전 사용
     npm install vue-router@4
 
+----------------------------------------------------------------------------
+
+▶ js 객체 복사/비교
+- 원시 타입
+- 참조 타입 (주소값에 주목)
+    - a = {a: 1 ,b: 1} , b = a 일 때, a === b --> true
+    - b.a = 3 일 때 a.a = 3
+    - a에 영향을 주지 않고 사용/변경 하고자 할 경우, 새로운 변수에 새 객체 생성
+        > c = {...a} 일 때,
+          1) a === c --> false
+          2) a.a === c.a --> true
+             JSON.stringify(a) === JSON.stringify(c) --> true
+          3) d = {b: 1, a: 1}
+             JSON.stringify(a) === JSON.stringify(d) --> false
+             (단, 객체 내 데이터의 순서가 다르면 false)
+          3) lodash 라이브러리 사용
+             _.isEqual(a, d) ---> true
+
+- lodash 라이브러리 설치
+    npm i lodash
+
+----------------------------------------------------------------------------
+
+
+
+
 
  
