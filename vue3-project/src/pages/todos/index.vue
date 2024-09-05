@@ -3,12 +3,18 @@
     <SummaryCode />
     
     <div>
-      <h3>To-Do List</h3>
+      <div class="d-flex justify-content-between mb-3">
+        <h3>To-Do List</h3>
+        <button class="btn btn-primary" @click="moveToCreatePage">
+          Create Todo
+        </button>
+      </div>
+      
       
       <input class="form-control mr-2" type="text" v-model="searchText" @keyup.enter="searchTodo" placeholder="Search"/>
       <hr/>
       <!-- form component 생성 -->
-      <TodoSimpleForm @add-todo="addTodo"/>
+      <!-- <TodoSimpleForm @add-todo="addTodo"/> -->
       <div>{{  error }}</div>
   
       <div v-if="!todos.length">There is nothing to display</div>
@@ -34,21 +40,25 @@
         </ul>
       </nav>
     </div>
-  
+    <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType"/>
   </template>
   
   <script>
   import {ref, computed, watch} from 'vue';
   import SummaryCode from '@/components/SummaryCode.vue';
-  import TodoSimpleForm from '@/components/TodoSimpleForm.vue';
+  //import TodoSimpleForm from '@/components/TodoSimpleForm.vue';
   import TodoList from '@/components/TodoList.vue';
   import axios from 'axios'; //비동기방식(비순차)
+  import Toast from '@/components/Toast.vue';
+  import { useToast } from '@/composables/toast';
+  import { useRouter } from 'vue-router';
   
   export default {
     components:{
       SummaryCode,
-      TodoSimpleForm,
-      TodoList
+      //TodoSimpleForm,
+      TodoList,
+      Toast,
     },
     setup() {
       //const todo = ref('');
@@ -62,6 +72,14 @@
       const numberOfPages = computed(()=>{
         return Math.ceil(numberOfTodos.value/limit);
       });
+      const router = useRouter();
+
+      const {
+        showToast,
+        toastMessage,
+        toastAlertType,
+        triggerToast
+      } = useToast();
   
       const getTodos = async(page = currentPage.value) => {
         currentPage.value = page;
@@ -71,6 +89,7 @@
           todos.value = res.data;
         }catch(err){
           error.value = 'ERROR';
+          triggerToast('Something went Wrong...', 'danger');
         }
       }
       
@@ -92,6 +111,7 @@
           //todos.value.push(res.data);
         }catch(err){
           error.value = 'ERROR';
+          triggerToast('Something went Wrong...', 'danger');
         }
   
         // .then(res => { //응답 후
@@ -112,6 +132,7 @@
           //todos.value.splice(index, 1);
         }catch(err){
           error.value = 'ERROR';
+          triggerToast('Something went Wrong...', 'danger');
         }
       }
       
@@ -128,6 +149,7 @@
           todos.value[index].completed = checked
         }catch(err){
           error.value = 'ERROR';
+          triggerToast('Something went Wrong...', 'danger');
         }
       };
   
@@ -140,6 +162,13 @@
   
       //   return todos.value;
       // });
+
+      const moveToCreatePage = () => {
+        router.push({
+          name: 'TodoCreate'
+        })
+      }
+
   
       let timeout = null;
       const searchTodo = () => {
@@ -179,6 +208,12 @@
   
         getTodos,
         searchTodo,
+
+        toastMessage,
+        toastAlertType,
+        showToast,
+
+        moveToCreatePage,
       };
     },
   };

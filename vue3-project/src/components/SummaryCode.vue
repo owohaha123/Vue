@@ -44,11 +44,32 @@
 </template>
 
 <script>
-  import {ref,computed} from 'vue';
+  import {ref,computed,onBeforeMount,onMounted, onBeforeUpdate, onUpdated, onBeforeUnmount, onUnmounted} from 'vue';
   //import {watchEffect,reactive} from 'vue';
 
   export default {
     setup() {
+      onBeforeMount(() => {
+        console.log('onBeforeMount')
+      });
+      onMounted(() => {
+        console.log('onMounted')
+      });
+      //상태 업데이트 시
+      onBeforeUpdate(() => {
+        console.log('onBeforeUpdate');
+      })
+      onUpdated(() => {
+        console.log('onUpdated')
+      })
+      //다른 페이지로 이동 시
+      onBeforeUnmount(() => {
+        console.log('onBeforeUnmount')
+      })
+      onUnmounted(() => {
+        console.log('onUnmounted')
+      })
+
       //let name = "goguma"; //값이 변해야 하니 let로 선언
       const name = ref('goguma');
       const type = ref('number');
